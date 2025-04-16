@@ -1,0 +1,91 @@
+"use client";
+
+import { useTheme } from "next-themes"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ChevronRight } from "lucide-react";
+import { Toaster, ToasterProps, toast } from "sonner"
+import { useUser } from "@/hooks/useUser";
+
+export default function Input() {
+    const { theme = "system" } = useTheme()
+    const [valume, setValume] = useState<string>("")
+    const [isLoading, setIsLoading] = useState(false)
+    const { uid } = useUser()
+    const router = useRouter()
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const inputValume = event.target.value
+        const filteredValue = inputValume.replace(/[^A-Za-z_0-9-]/g, "")
+        setValume(filteredValue)
+    }
+
+    const handleSave = async () => {
+        setIsLoading(true)
+
+        if (!valume.trim()) {
+            const msg = "Please enter your username."
+            toast.error(msg)
+            setIsLoading(false)
+            return
+        }
+
+        if (!/^[a-zA-Z0-9_]+$/.test(valume)) {
+            const msg = "Username can only contain letters, numbers, and underscores."
+            toast.error(msg)
+            setIsLoading(false)
+            return
+        }
+
+        if (valume.length < 3) {
+            const msg = "Username must be at least 3 characters long."
+            toast.error(msg)
+            setIsLoading(false)
+            return
+        }
+
+        try {
+            const response = await fetch("/api/save-username", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    uid: uid,
+                    username: valume,
+                }),
+            });
+
+            if (!response.ok) {
+                const msg = "An error has occurred. Please try again later."
+                toast.error(msg)
+                console.error("Unexpected error saving username:", await response.text())
+                setIsLoading(false)
+                return
+            }
+
+            router.push("/admin/")
+        } catch (error) {
+            const msg = "An unexpected error has occurred. Please try again later."
+            toast.error(msg)
+            console.error("Unexpected error:", error)
+            setIsLoading(false)
+        }
+    }
+
+    return (
+        <>
+            <Toaster theme={theme as ToasterProps["theme"]} />
+
+            <div className="flex border border-neutral-200 dark:border-neutral-800 rounded-lg bg-neutral-100 dark:bg-neutral-900 px-5 py-3.5 mb-8 items-center justify-items-center justify-between">
+                <div className="flex items-center">
+                    <span className="text-neutral-600 dark:text-neutral-500 text-lg">bakey.pro</span>
+                    <input onChange={handleChange} value={valume} className="bg-transparent w-full border-none outline-none text-neutral-950 dark:text-neutral-50 text-lg ml-1.5" type="text" pattern="^[A-Za-z0-9_-]+$" />
+                </div>
+                <button disabled={valume.length < 3 || isLoading} onClick={handleSave} className="cursor-grab bg-transparent min-w-9 min-h-9 border border-neutral-200 dark:border-neutral-800 outline-none rounded-lg ml-2 text-center justify-center justify-items-center">
+                    <ChevronRight size="20" className="text-neutral-950 dark:text-neutral-50" />
+                </button>
+            </div>
+        </>
+    )
+}

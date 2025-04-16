@@ -1,0 +1,120 @@
+import { supabase, createSupabaseWithToken } from "@/libs/supabaseClient";
+
+export async function POST(req: Request) {
+    if (req.method !== 'POST') {
+        return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+    }
+
+    try {
+        const authorizationHeader = req.headers.get("authorization");
+        const accessToken = authorizationHeader?.replace("Bearer ", "");
+        if (!accessToken) {
+            return new Response(JSON.stringify({ error: "Unauthorized: Missing access token" }), { status: 401 });
+        }
+
+        const supabaseWithAuth = createSupabaseWithToken(accessToken);
+
+        const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
+        if (userError || !user) {
+            console.error("Error fetching user:", userError);
+            await supabase.auth.signOut();
+            return new Response(JSON.stringify({ error: "Invalid session or token" }), { status: 401 });
+        }
+
+        const { id, user_metadata } = user;
+        console.log("User ID:", id);
+        console.log("User Metadata:", user_metadata);
+
+        const { data: profileData, error: profileError } = await supabaseWithAuth
+            .from("profiles")
+            .select("*")
+            .eq("uid", id)
+            .single();
+
+        if (profileError && profileError.code !== "PGRST116") {
+            console.error("Profile fetch error:", profileError);
+            await supabase.auth.signOut();
+            return new Response(JSON.stringify({ error: "An error occurred while fetching your profile" }), { status: 500 });
+        }
+
+        if (profileData) {
+            return new Response(JSON.stringify({ success: true }), { status: 200 });
+        }
+
+        const initialProfileData = {
+            uid: id,
+            name: user_metadata.name || "name",
+            username: "",
+            icon: user_metadata.avatar_url || "",
+            header: "",
+            bio: {
+                introduction: "",
+                location: "",
+                occupation: "",
+            }
+        };
+
+        const { error: profileErrorInsert } = await supabaseWithAuth
+            .from("profiles")
+            .insert(initialProfileData);
+        if (profileErrorInsert) {
+            console.error("Profile insert error:", profileErrorInsert);
+            await supabase.auth.signOut();
+            return new Response(JSON.stringify({ error: "Failed to insert profile" }), { status: 500 });
+        }
+
+        const initialCardData = {
+            uid: id,
+            data: {
+                "Cards": [
+                    {
+                        "id": "1",
+                        "type": "icon",
+                        "icon": "bi-discord",
+                        "title": "Discord",
+                        "image": "",
+                        "redirect": "",
+                    },
+                    {
+                        "id": "2",
+                        "type": "icon",
+                        "icon": "bi-twitter-x",
+                        "title": "X",
+                        "image": "",
+                        "redirect": "",
+                    }
+                ]
+            },
+        };
+
+        const { error: cardErrorInsert } = await supabaseWithAuth
+            .from("cards")
+            .insert(initialCardData);
+        if (cardErrorInsert) {
+            console.error("Card insert error:", cardErrorInsert);
+            await supabase.auth.signOut();
+            return new Response(JSON.stringify({ error: "Failed to insert card" }), { status: 500 });
+        }
+
+        const initialThemeData = {
+            uid: id,
+            theme: "#ffffff, #D8D8D8, #202020",
+            style: "fill, rounded-2xl"
+        };
+
+        const { error: themeErrorInsert } = await supabaseWithAuth
+            .from("themes")
+            .insert(initialThemeData);
+        if (themeErrorInsert) {
+            console.error("Theme insert error:", themeErrorInsert);
+            await supabase.auth.signOut();
+            return new Response(JSON.stringify({ error: "Failed to insert theme" }), { status: 500 });
+        }
+
+        return new Response(JSON.stringify({ success: true }), { status: 200 });
+    } catch (error) {
+        console.error("Unexpected error:", error);
+        await supabase.auth.signOut();
+        return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
+    }
+}
