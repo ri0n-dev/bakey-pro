@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { supabase } from "@/libs/supabaseClient";
 
 export function useUser() {
   const [uid, setUid] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
-  const [profiles, setProfiles] = useState<any>(null);
-  const [cards, setCards] = useState<any>(null);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -16,19 +14,18 @@ export function useUser() {
       if (sessionError || !sessionData?.session?.user) {
         setUid(null);
         setUser(null);
-        setProfiles(null);
-        setCards(null);
-        return;
+
+        return redirect("/login/");
       }
 
       const currentUser = sessionData.session.user;
-      setUser(currentUser);
       setUid(currentUser.id);
 
       const response = await fetch("/api/user/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${sessionData.session.access_token}`,
         },
         body: JSON.stringify({
             uid: uid,
@@ -37,12 +34,18 @@ export function useUser() {
 
       if (!response.ok) {
         console.error("Unexpected error saving username:", await response.text())
+
+        setUid(null);
+        setUser(null);
         return;
       }
+
+      const user = await response.json();
+      setUser(user.data)
     };
 
     checkUser();
   }, []);
 
-  return { uid, user, profiles, cards };
+  return { uid, user };
 };

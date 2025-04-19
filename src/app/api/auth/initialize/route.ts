@@ -22,8 +22,6 @@ export async function POST(req: Request) {
         }
 
         const { id, user_metadata } = user;
-        console.log("User ID:", id);
-        console.log("User Metadata:", user_metadata);
 
         const { data: profileData, error: profileError } = await supabaseWithAuth
             .from("profiles")

@@ -4,6 +4,7 @@ import { useTheme } from "next-themes"
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
+import { supabase } from "@/libs/supabaseClient";
 import { Toaster, ToasterProps, toast } from "sonner"
 import { useUser } from "@/hooks/useUser";
 
@@ -45,10 +46,20 @@ export default function Input() {
         }
 
         try {
-            const response = await fetch("/api/save-username", {
+            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError || !sessionData.session) {
+                const msg = "An error has occurred. Please try again later."
+                toast.error(msg)
+                console.error("Unexpected error geting Session:", sessionError)
+                setIsLoading(false)
+                return
+            }
+
+            const response = await fetch("/api/settings/username", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${sessionData.session.access_token}`,
                 },
                 body: JSON.stringify({
                     uid: uid,
@@ -82,8 +93,8 @@ export default function Input() {
                     <span className="text-neutral-600 dark:text-neutral-500 text-lg">bakey.pro</span>
                     <input onChange={handleChange} value={valume} className="bg-transparent w-full border-none outline-none text-neutral-950 dark:text-neutral-50 text-lg ml-1.5" type="text" pattern="^[A-Za-z0-9_-]+$" />
                 </div>
-                <button disabled={valume.length < 3 || isLoading} onClick={handleSave} className="cursor-grab bg-transparent min-w-9 min-h-9 border border-neutral-200 dark:border-neutral-800 outline-none rounded-lg ml-2 text-center justify-center justify-items-center">
-                    <ChevronRight size="20" className="text-neutral-950 dark:text-neutral-50" />
+                <button disabled={valume.length < 3 || isLoading} onClick={handleSave} className={`cursor-grab min-w-9 min-h-9 border outline-none rounded-lg ml-2 text-center justify-center justify-items-center`}>
+                    <ChevronRight size="20" className={`transition-colors duration-300 ${valume.length < 3 ? "text-neutral-800 dark:text-neutral-500" : "text-neutral-950 dark:text-neutral-50"}`} />
                 </button>
             </div>
         </>

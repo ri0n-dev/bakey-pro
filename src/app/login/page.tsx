@@ -1,6 +1,6 @@
-import { SessionCheckReverse } from "@/components/sessionCheck";
-import SSO from "@/components/clinet/login/sso"
-import Header from "@/components/layout/login/header";
+import SSO from "@/components/clinet/login/SSO"
+import { CheckSessionReverse } from "@/components/clinet/auth/Session";
+import Header from "@/components/layout/login/Header";
 
 export const metadata = {
     title: 'Login',
@@ -10,9 +10,9 @@ export const metadata = {
 export default async function LoginPage() {
     return (
         <>
+            <CheckSessionReverse />
+
             <div>
-
-
                 <Header />
 
                 <div className="flex flex-col justify-center items-center gap-3 w-full max-w-sm mx-auto h-[85vh]">
@@ -21,7 +21,7 @@ export default async function LoginPage() {
 
                     <SSO />
 
-                    <p className="text-neutral-500 text-sm text-center mt-6">By singing up, you agree to out <a className="underline" href="/terms/">Terms of Service</a> and <a  className="underline"  href="/privacy/">Privacy Policy</a>. An email can't be used for login.</p>
+                    <p className="text-neutral-500 text-sm text-center mt-6">By singing up, you agree to out <a className="underline" href="/terms/">Terms of Service</a> and <a className="underline" href="/privacy/">Privacy Policy</a>. An email can't be used for login.</p>
                 </div>
             </div>
         </>
