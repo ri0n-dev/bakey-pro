@@ -1,21 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/libs/supabaseClient";
 
 export function useUser() {
+  const router = useRouter();
   const [uid, setUid] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const checkUser = async () => {
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       if (sessionError || !sessionData?.session?.user) {
-        setUid(null);
-        setUser(null);
-
-        return redirect("/login/");
+        await supabase.auth.signOut();
+        router.push("/login/");
+        return;
       }
 
       const currentUser = sessionData.session.user;
@@ -28,24 +29,24 @@ export function useUser() {
             "Authorization": `Bearer ${sessionData.session.access_token}`,
         },
         body: JSON.stringify({
-            uid: uid,
+          uid: currentUser.id,
         }),
       });
 
       if (!response.ok) {
-        console.error("Unexpected error saving username:", await response.text())
-
-        setUid(null);
-        setUser(null);
+        console.error("An Unexpected Error has occurred:", await response.text())
+        await supabase.auth.signOut();
+        router.push("/login/");
         return;
       }
 
       const user = await response.json();
       setUser(user.data)
+      setLoading(false);
     };
 
     checkUser();
   }, []);
 
-  return { uid, user };
+  return { uid, user, loading };
 };

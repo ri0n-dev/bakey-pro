@@ -1,4 +1,5 @@
-import type { NextConfig } from "next";
+import {NextConfig} from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
   webpack(config) {
@@ -16,6 +17,20 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  i18n: {
+    locales: ['en', 'ja'],
+    defaultLocale: 'en',
+  },
+  async redirects() {
+    return [
+      {
+        source: '/admin/',
+        destination: '/admin/profiles',
+        permanent: true
+      },
+    ];
+  },
 };
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin();
+export default withNextIntl(nextConfig);

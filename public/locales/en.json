@@ -1,0 +1,18 @@
+{
+    "login": {
+        "title": "A new step",
+        "description": "To login to Bakey, you need to choose one of the following steps.",
+        "terms1": "By singing up, you agree to out",
+        "terms2": "and",
+        "terms3": ". An email can't be used for login."
+    },
+    "welcome": {
+        "title": "Set Username",
+        "description": "Let's set your username. The username will be used to the URL of your profile page.",
+        "note": "Your username will be visible to everyone. You will need to wait 30 days before making another change."
+    },
+    "word": {
+        "terms": "Terms of Service",
+        "privacy": "Privacy Policy"
+    }
+}

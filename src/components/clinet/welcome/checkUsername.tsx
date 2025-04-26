@@ -10,7 +10,7 @@ export default function CheckUsername() {
 
     useEffect(() => {
         if (user?.username) {
-            router.push("/admin");
+            router.push("/admin/profiles");
         }        
     }, [user, router]);
 

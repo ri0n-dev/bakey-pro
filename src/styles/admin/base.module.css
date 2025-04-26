@@ -1,0 +1,15 @@
+.dashboard {
+    display: flex;
+    height: 100vh;
+}
+
+.contents {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    background-color: var(--background-color-sub);
+}

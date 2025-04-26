@@ -1,3 +1,4 @@
+import sharp from "sharp";
 import { supabase, createSupabaseWithToken } from "@/libs/supabaseClient";
 
 export async function POST(req: Request) {
@@ -39,11 +40,43 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ success: true }), { status: 200 });
         }
 
+        const sharp = require("sharp");
+        let uploadedAvatarUrl = "";
+        if (user_metadata.avatar_url) {
+            const response = await fetch(user_metadata.avatar_url);
+            const arrayBuffer = await response.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
+            const resizedBuffer = await sharp(buffer)
+                .resize(256, 256)
+                .jpeg({ quality: 80 })
+                .toBuffer();
+
+            const fileName = `${user.id}.jpg`;
+
+            const { error: storageError } = await supabase
+                .storage
+                .from("icons")
+                .upload(fileName, resizedBuffer, { contentType: "image/jpeg", upsert: true });
+
+            if (storageError) {
+                console.error("Storage upload error:", storageError);
+                await supabase.auth.signOut();
+                return new Response(JSON.stringify({ error: "Failed to upload avatar" }), { status: 500 });
+            } else {
+                const { data: publicUrl } = supabase
+                    .storage
+                    .from("icons")
+                    .getPublicUrl(fileName);
+                uploadedAvatarUrl = publicUrl.publicUrl;
+            }
+        }
+
         const initialProfileData = {
             uid: id,
             name: user_metadata.name || "name",
             username: "",
-            icon: user_metadata.avatar_url || "",
+            icon: uploadedAvatarUrl || user_metadata.avatar_url || "",
             header: "",
             bio: {
                 introduction: "",

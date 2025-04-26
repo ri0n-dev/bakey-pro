@@ -1,4 +1,6 @@
-import { ThemeProvider } from "@/components/themeProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale } from 'next-intl/server';
 import { GeistSans } from 'geist/font/sans'
 import "@/styles/tailwind.css";
 
@@ -36,13 +38,11 @@ export const metadata = {
   keywords: ['Bakey', 'bakey', 'Bakey Pro'],
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="en" className={GeistSans.className} suppressHydrationWarning>
+    <html lang={locale} className={GeistSans.className} suppressHydrationWarning>
       <head>
         <style>{`
           img {
@@ -61,7 +61,9 @@ export default function RootLayout({
       </head>
       <body className="h-full overflow-y-scroll scrollbar-none bg-neutral-50 dark:bg-neutral-950 text-black dark:text-white font-geist">
         <ThemeProvider attribute="class">
-          {children}
+          <NextIntlClientProvider>
+            {children}
+          </NextIntlClientProvider>
         </ThemeProvider>
       </body>
     </html>
