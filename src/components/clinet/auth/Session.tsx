@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/libs/supabaseClient";
+import { supabase } from "@/libs/SupabaseClient";
 
 export const CheckSession = () => {
     const router = useRouter();

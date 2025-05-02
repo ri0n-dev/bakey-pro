@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: '/admin/',
+        source: '/admin',
         destination: '/admin/profiles',
         permanent: true
       },

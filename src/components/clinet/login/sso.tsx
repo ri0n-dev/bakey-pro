@@ -1,6 +1,6 @@
 "use client";
 import { SiGoogle, SiGithub, SiDiscord, SiX } from "@icons-pack/react-simple-icons";
-import { supabase } from "@/libs/supabaseClient";
+import { supabase } from "@/libs/SupabaseClient";
 
 export default function SSO() {
     const loginWithProvider = async (provider: "google" | "discord" | "github" | "twitter") => {

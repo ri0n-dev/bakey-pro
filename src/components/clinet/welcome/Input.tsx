@@ -4,7 +4,7 @@ import { useTheme } from "next-themes"
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
-import { supabase } from "@/libs/supabaseClient";
+import { supabase } from "@/libs/SupabaseClient";
 import { Toaster, ToasterProps, toast } from "sonner"
 import { useUser } from "@/hooks/useUser";
 
@@ -25,22 +25,19 @@ export default function Input() {
         setIsLoading(true)
 
         if (!valume.trim()) {
-            const msg = "Please enter your username."
-            toast.error(msg)
+            toast.error("Please enter your username.")
             setIsLoading(false)
             return
         }
 
         if (!/^[a-zA-Z0-9_]+$/.test(valume)) {
-            const msg = "Username can only contain letters, numbers, and underscores."
-            toast.error(msg)
+            toast.error("Username can only contain letters, numbers, and underscores.")
             setIsLoading(false)
             return
         }
 
         if (valume.length < 3) {
-            const msg = "Username must be at least 3 characters long."
-            toast.error(msg)
+            toast.error("Username must be at least 3 characters long.")
             setIsLoading(false)
             return
         }
@@ -48,8 +45,7 @@ export default function Input() {
         try {
             const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
             if (sessionError || !sessionData.session) {
-                const msg = "An error has occurred. Please try again later."
-                toast.error(msg)
+                toast.error("An error has occurred. Please try again late")
                 console.error("Unexpected error geting Session:", sessionError)
                 setIsLoading(false)
                 return
@@ -62,14 +58,12 @@ export default function Input() {
                     "Authorization": `Bearer ${sessionData.session.access_token}`,
                 },
                 body: JSON.stringify({
-                    uid: uid,
                     username: valume,
                 }),
             });
 
             if (!response.ok) {
-                const msg = "An error has occurred. Please try again later."
-                toast.error(msg)
+                toast.error("An error has occurred. Please try again later.")
                 console.error("Unexpected error saving username:", await response.text())
                 setIsLoading(false)
                 return
@@ -77,8 +71,7 @@ export default function Input() {
 
             router.push("/admin/")
         } catch (error) {
-            const msg = "An unexpected error has occurred. Please try again later."
-            toast.error(msg)
+            toast.error("An unexpected error has occurred. Please try again later.")
             console.error("Unexpected error:", error)
             setIsLoading(false)
         }

@@ -2,7 +2,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale } from 'next-intl/server';
 import { GeistSans } from 'geist/font/sans'
-import "@/styles/tailwind.css";
+import "@/styles/Tailwind.css";
 
 export const metadata = {
   title: {

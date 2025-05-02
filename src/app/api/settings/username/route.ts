@@ -1,5 +1,4 @@
-import { supabase, createSupabaseWithToken } from "@/libs/supabaseClient";
-import { error } from "console";
+import { supabase, createSupabaseWithToken } from "@/libs/SupabaseClient";
 
 export async function POST(req: Request) {
     if (req.method !== 'POST') {

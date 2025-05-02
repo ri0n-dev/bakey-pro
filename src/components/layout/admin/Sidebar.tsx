@@ -32,7 +32,7 @@ export default function Sidebar() {
     }
 
     return (
-        <div className="flex flex-col fixed top-0 left-0 min-w-63 h-full z-1000 p-3 border-r border-neutral-100 dark:border-neutral-900">
+        <div className="flex flex-col fixed top-0 left-0 min-w-63 h-full p-3 border-r border-neutral-200 dark:border-neutral-900">
             <nav>
                 <div className="justify-left items-left text-left pb-4 pt-2 pl-2">
                     <Image src={lovoNav} alt="Logo" width={30} height={30} />
@@ -74,7 +74,7 @@ export default function Sidebar() {
                 <div className="flex justify-center items-center">
                     <div className="flex items-center justify-center mr-2 w-10 h-10 rounded-full">
                         <Avatar>
-                            <AvatarImage src="https://lh3.googleusercontent.com/a/ACg8ocLDXKmnpfDE1MZCPGFhG_roY2bHxdr_Y3bGZs6cwwm_tzf42l1PfA=s96-c" />
+                            <AvatarImage src={user.icon} />
                             <AvatarFallback>WA</AvatarFallback>
                         </Avatar>
                     </div>

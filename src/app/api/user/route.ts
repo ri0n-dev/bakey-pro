@@ -1,4 +1,4 @@
-import { supabase, createSupabaseWithToken } from "@/libs/supabaseClient";
+import { supabase, createSupabaseWithToken } from "@/libs/SupabaseClient";
 
 export async function POST(req: Request) {
     if (req.method !== 'POST') {
@@ -31,14 +31,12 @@ export async function POST(req: Request) {
 
         if (profileError && profileError.code !== "PGRST116") {
             console.error("Profile fetch error:", profileError);
-            await supabase.auth.signOut();
             return new Response(JSON.stringify({ error: "An error occurred while fetching your profile" }), { status: 500 });
         }
 
         return new Response(JSON.stringify({ success: true, data: profileData }), { status: 200 });
     } catch (error) {
         console.error("Unexpected error:", error);
-        await supabase.auth.signOut();
         return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
     }
 }

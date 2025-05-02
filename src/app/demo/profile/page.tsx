@@ -15,7 +15,7 @@ export default function DemoProfilePage() {
                     <div className="relative w-full h-auto">
                         <div className="relative w-full h-auto rounded-3xl overflow-hidden">
                             <Image
-                                src="https://storage.evex.land/download?key=No88HURozNLj%2FmlL44z9T%2F43hB7zbhK%2BPntQk3zuT41PjN8wq%2BsayX7xRXnB%2FYSLyFNa6E073gFAGKHhdEc9R7ZZGrVRIz3PrlJHXO5sOTg%3D"
+                                src="https://media1.tenor.com/m/dBGOKFsLvmIAAAAd/hikakin-youtuber.gif"
                                 className="w-full h-70 object-cover"
                                 width={600}
                                 height={300}

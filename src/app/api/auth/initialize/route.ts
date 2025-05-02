@@ -1,5 +1,4 @@
-import sharp from "sharp";
-import { supabase, createSupabaseWithToken } from "@/libs/supabaseClient";
+import { supabase, createSupabaseWithToken } from "@/libs/SupabaseClient";
 
 export async function POST(req: Request) {
     if (req.method !== 'POST') {
@@ -82,6 +81,7 @@ export async function POST(req: Request) {
                 introduction: "",
                 location: "",
                 occupation: "",
+                contact: "",
             }
         };
 
@@ -94,22 +94,22 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ error: "Failed to insert profile" }), { status: 500 });
         }
 
-        const initialCardData = {
+        const initialBlockData = {
             uid: id,
             data: {
-                "Cards": [
+                "blocks": [
                     {
                         "id": "1",
-                        "type": "icon",
-                        "icon": "bi-discord",
+                        "type": "IconLink",
+                        "icon": "SiDiscord",
                         "title": "Discord",
                         "image": "",
                         "redirect": "",
                     },
                     {
                         "id": "2",
-                        "type": "icon",
-                        "icon": "bi-twitter-x",
+                        "type": "IconLink",
+                        "icon": "SiX",
                         "title": "X",
                         "image": "",
                         "redirect": "",
@@ -118,13 +118,13 @@ export async function POST(req: Request) {
             },
         };
 
-        const { error: cardErrorInsert } = await supabaseWithAuth
-            .from("cards")
-            .insert(initialCardData);
-        if (cardErrorInsert) {
-            console.error("Card insert error:", cardErrorInsert);
+        const { error: blockErrorInsert } = await supabaseWithAuth
+            .from("blocks")
+            .insert(initialBlockData);
+        if (blockErrorInsert) {
+            console.error("Block insert error:", blockErrorInsert);
             await supabase.auth.signOut();
-            return new Response(JSON.stringify({ error: "Failed to insert card" }), { status: 500 });
+            return new Response(JSON.stringify({ error: "Failed to insert block" }), { status: 500 });
         }
 
         const initialThemeData = {

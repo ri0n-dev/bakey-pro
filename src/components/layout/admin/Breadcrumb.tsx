@@ -10,7 +10,7 @@ export default function Breadcrumb({ children }: { children?: React.ReactNode })
 
     return (
         <>
-            <div className="flex fixed justify-between items-center border-b border-neutral-100 dark:border-neutral-900 pl-5 pr-4 top-0 left-63 right-0 z-10 shadow-md h-14">
+            <div className="flex fixed justify-between items-center bg-neutral-50 dark:bg-neutral-950 border-b border-neutral-200 dark:border-neutral-900 pl-5 pr-4 top-0 left-63 right-0 z-10 h-14">
                 <div className="flex w-full text-base justify-left items-center">
                     {path.map((segment, index) => (
                         <React.Fragment key={segment + index}>
