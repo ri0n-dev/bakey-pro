@@ -1,9 +1,8 @@
 "use client";
 
-import { useTheme } from "next-themes"
 import { useUser } from "@/hooks/useUser";
 import { useState, useEffect } from "react";
-import { Toaster, ToasterProps, toast } from "sonner"
+import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { Button } from "@/components/ui/Button"
 import { Label } from "@/components/ui/Label"
@@ -14,8 +13,7 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, Dialog
 import { MapPin, BriefcaseBusiness, Calendar, Mail, FlaskConical } from "lucide-react";
 
 export default function IconEdit() {
-    const { theme = "system" } = useTheme()
-    const { uid, user } = useUser();
+    const { user } = useUser();
     const [isBioOpen, setIsBioOpen] = useState(false);
     const [isOtherOpen, setIsOtherOpen] = useState(false);
     const [currentName, setCurrentName] = useState("");
@@ -29,7 +27,6 @@ export default function IconEdit() {
     const [originalLocation, setOriginalLocation] = useState("");
     const [originalOccupation, setOriginalOccupation] = useState("");
     const [originalContact, setOriginalContact] = useState("");
-    const [isBioLoaded, setIsBioLoaded] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -71,7 +68,6 @@ export default function IconEdit() {
             setOriginalOccupation(user.bio?.occupation || "");
             setOriginalIntroduction(user.bio?.introduction || "");
             setOriginalContact(user.bio?.contact || "");
-            setIsBioLoaded(false);
         }
     }, [isBioOpen, user]);
 
@@ -145,8 +141,6 @@ export default function IconEdit() {
 
     return (
         <>
-            <Toaster theme={theme as ToasterProps["theme"]} />
-
             {isLoading ? (
                 <>
                     <div style={{ marginBottom: "10px" }}>
@@ -188,7 +182,7 @@ export default function IconEdit() {
                             <DialogClose asChild>
                                 <Button className="cursor-pointer" variant="ghost">Cancel</Button>
                             </DialogClose>
-                            <Button className="cursor-pointer" onClick={handleSave} disabled={isSaving || originalName === currentName && originalIntroduction === currentIntroduction && originalLocation === currentLocation && originalOccupation === currentOccupation && originalContact === currentContact} type="submit">Save</Button>
+                            <Button className="cursor-pointer" onClick={handleSave} disabled={isSaving || originalName.trim() === "" || originalName === currentName && originalIntroduction === currentIntroduction && originalLocation === currentLocation && originalOccupation === currentOccupation && originalContact === currentContact} type="submit">Save</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

@@ -49,11 +49,7 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ error: "Failed to upload icon" }), { status: 500 });
         }
 
-        const { data: publicUrlData } = supabaseWithAuth.storage
-            .from("icons")
-            .getPublicUrl(`${id}.jpeg`);
-
-        const iconUrlWithDate = `${publicUrlData.publicUrl}?t=${Date.now()}`;
+        const iconUrlWithDate = `/api/image?url=icons/${id}.jpeg&t=${Date.now()}`;
         const { error } = await supabaseWithAuth
             .from("profiles")
             .update({ "icon": iconUrlWithDate })

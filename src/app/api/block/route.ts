@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
         const { data: blockData, error: blockError } = await supabase
             .from("blocks")
-            .select("data")
+            .select("block")
             .eq("uid", uid)
             .single();
 
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ error: "An error occurred while fetching your block" }), { status: 500 });
         }
 
-        return new Response(JSON.stringify({ success: true, data: blockData?.data.blocks }), { status: 200 });
+        return new Response(JSON.stringify({ success: true, data: blockData?.block }), { status: 200 });
     } catch (error) {
         console.error("Unexpected error:", error);
         return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });

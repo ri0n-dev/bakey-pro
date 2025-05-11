@@ -1,21 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { useTheme } from "next-themes"
 import { useUser } from "@/hooks/useUser";
 import { useState, useEffect, useRef } from "react";
+import { supabase } from "@/libs/SupabaseClient";
 import Cropper from "cropperjs";
 import { Camera } from "lucide-react";
-import { Toaster, ToasterProps, toast } from "sonner"
-import { supabase } from "@/libs/SupabaseClient";
+import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/Skeleton"
 import { Button } from "@/components/ui/Button"
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/Dialog"
 import "cropperjs/dist/cropper.css";
 
 export default function HeaderEdit() {
-    const { theme = "system" } = useTheme()
-    const { uid, user } = useUser();
+    const { user } = useUser();
     const imageRef = useRef<HTMLImageElement | null>(null);
     const cropperRef = useRef<Cropper | null>(null);
     const [isHeaderEditOpen, setIsHeaderEditOpen] = useState(false);
@@ -219,24 +217,12 @@ export default function HeaderEdit() {
 
     return (
         <>
-            <Toaster theme={theme as ToasterProps["theme"]} />
-
             <div className="relative w-full h-auto overflow-hidden / border-t border-b border-neutral-200 dark:border-neutral-900">
                 {isLoading ? (
                     <Skeleton className="w-[100%] h-[300px] rounded-none object-cover" />
                 ) : (
                     <>
-                        <Image
-                            src={currentHeaderUrl}
-                            className="w-full h-70 object-cover opacity-50"
-                            width={600}
-                            height={300}
-                            alt="User Header"
-                            onLoad={() => setIsLoading(false)}
-                            onError={handleImageError}
-                            priority
-                        />
-
+                        <Image src={currentHeaderUrl} className="w-full h-70 object-cover opacity-50" width={600} height={300} alt="User Header" onLoad={() => setIsLoading(false)} onError={handleImageError} priority unoptimized />
                         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-neutral-950 opacity-60"></div>
 
                         <div className="absolute inset-0 flex items-center justify-center text-white">

@@ -96,26 +96,26 @@ export async function POST(req: Request) {
 
         const initialBlockData = {
             uid: id,
-            data: {
-                "blocks": [
-                    {
-                        "id": "1",
-                        "type": "IconLink",
-                        "icon": "SiDiscord",
-                        "title": "Discord",
-                        "image": "",
-                        "redirect": "",
-                    },
-                    {
-                        "id": "2",
-                        "type": "IconLink",
-                        "icon": "SiX",
-                        "title": "X",
-                        "image": "",
-                        "redirect": "",
-                    }
-                ]
-            },
+            block: [
+                {
+                    "id": "1",
+                    "type": "IconLink",
+                    "icon": "SiDiscord",
+                    "string": "Discord",
+                    "image": "",
+                    "redirect": "",
+                    "lock": ""
+                },
+                {
+                    "id": "2",
+                    "type": "IconLink",
+                    "icon": "SiX",
+                    "string": "X",
+                    "image": "",
+                    "redirect": "",
+                    "lock": ""
+                }
+            ],
         };
 
         const { error: blockErrorInsert } = await supabaseWithAuth

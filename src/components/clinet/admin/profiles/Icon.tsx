@@ -1,12 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useTheme } from "next-themes"
 import { useUser } from "@/hooks/useUser";
 import { useState, useEffect, useRef } from "react";
 import Cropper from "cropperjs";
 import { Camera } from "lucide-react";
-import { Toaster, ToasterProps, toast } from "sonner"
+import { toast } from "sonner"
 import { supabase } from "@/libs/SupabaseClient";
 import { Skeleton } from "@/components/ui/Skeleton"
 import { Button } from "@/components/ui/Button"
@@ -14,8 +13,7 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, Dialog
 import "cropperjs/dist/cropper.css";
 
 export default function IconEdit() {
-    const { theme = "system" } = useTheme()
-    const { uid, user } = useUser();
+    const { user } = useUser();
     const imageRef = useRef<HTMLImageElement | null>(null);
     const cropperRef = useRef<Cropper | null>(null);
     const [isIconEditOpen, setIsIconEditOpen] = useState(false);
@@ -206,8 +204,6 @@ export default function IconEdit() {
 
     return (
         <>
-            <Toaster theme={theme as ToasterProps["theme"]} />
-
             <div className='absolute left-[20px] bottom-[-50px] w-[110px] h-[110px] border-[5px] border-transparent'>
                 {isLoading ? (
                     <Skeleton className="w-full h-full rounded-full object-cover" />

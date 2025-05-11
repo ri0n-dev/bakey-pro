@@ -9,7 +9,7 @@ import { SiGoogle } from "@icons-pack/react-simple-icons";
 import { WandSparkles, Eye } from "lucide-react";
 
 export const metadata = {
-    title: 'Profile',
+    title: 'Profiles',
     description: '',
 }
 

@@ -49,14 +49,10 @@ export async function POST(req: Request) {
             return new Response(JSON.stringify({ error: "Failed to upload icon" }), { status: 500 });
         }
 
-        const { data: publicUrlData } = supabaseWithAuth.storage
-            .from("headers")
-            .getPublicUrl(`${id}.jpeg`);
-
-        const iconUrlWithDate = `${publicUrlData.publicUrl}?t=${Date.now()}`;
+        const headerUrlWithDate = `/api/image/?url=headers/${id}.jpeg&t=${Date.now()}`;
         const { error } = await supabaseWithAuth
             .from("profiles")
-            .update({ "header": iconUrlWithDate })
+            .update({ "header": headerUrlWithDate })
             .eq("uid", id)
         if (error) {
             console.error("Profile update error:", error);

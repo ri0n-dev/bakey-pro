@@ -28,6 +28,16 @@ const nextConfig: NextConfig = {
         destination: '/admin/profiles',
         permanent: true
       },
+      {
+        source: '/discord',
+        destination: 'https://discord.gg/6BPfVm6cST',
+        permanent: true
+      },
+      {
+        source: '/discord/reports',
+        destination: 'https://discord.gg/Zzb4Beh9WA',
+        permanent: true
+      },
     ];
   },
 };

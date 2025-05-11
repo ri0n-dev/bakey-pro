@@ -2,6 +2,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale } from 'next-intl/server';
 import { GeistSans } from 'geist/font/sans'
+import { Toaster } from "@/components/ui/Sonner";
 import "@/styles/Tailwind.css";
 
 export const metadata = {
@@ -63,6 +64,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <ThemeProvider attribute="class">
           <NextIntlClientProvider>
             {children}
+            <Toaster />
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
