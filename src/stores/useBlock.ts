@@ -8,12 +8,12 @@ type Block = {
   component?: string;
 };
 
-type BlockStore = {
+type BlockState = {
   blocks: Block[];
   setBlocks: (blocks: Block[]) => void;
 };
 
-export const useBlockStore = create<BlockStore>((set) => ({
+export const useBlockStore = create<BlockState>((set) => ({
   blocks: [],
   setBlocks: (blocks) => set({ blocks }),
 }));
