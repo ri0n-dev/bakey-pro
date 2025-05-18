@@ -1,33 +1,27 @@
-import { supabase, createSupabaseWithToken } from "@/libs/SupabaseClient";
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/libs/SupabaseServer";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+    const supabase = await createClient();
     if (req.method !== 'POST') {
-        return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+        return new NextResponse(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
     }
 
     try {
         const body = await req.json();
 
-        const authorizationHeader = req.headers.get("authorization");
-        const accessToken = authorizationHeader?.replace("Bearer ", "");
-        if (!accessToken) {
-            return new Response(JSON.stringify({ error: "Unauthorized: Missing access token" }), { status: 401 });
-        }
-
-        const supabaseWithAuth = createSupabaseWithToken(accessToken);
-
-        const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
-        if (userError || !user) {
-            console.error("Error fetching user:", userError);
+        const { data: { user }, error: sessionError } = await supabase.auth.getUser();
+        if (sessionError || !user) {
+            console.error("Error fetching user:", sessionError);
             await supabase.auth.signOut();
-            return new Response(JSON.stringify({ error: "Invalid session or token" }), { status: 401 });
+            return new NextResponse(JSON.stringify({ error: "Invalid session or token" }), { status: 401 });
         }
 
         const { id } = user;
         const { file } = body;
 
         if (!file) {
-            return new Response(JSON.stringify({ error: "Missing File" }), { status: 400 })
+            return new NextResponse(JSON.stringify({ error: "Missing File" }), { status: 400 })
         }
 
         const sharp = require("sharp");
@@ -37,7 +31,7 @@ export async function POST(req: Request) {
             .jpeg({ quality: 80 })
             .toBuffer();
 
-        const { error: uploadError } = await supabaseWithAuth.storage
+        const { error: uploadError } = await supabase.storage
             .from("headers")
             .upload(`${id}.jpeg`, resizedBuffer, {
                 contentType: "image/jpeg",
@@ -46,24 +40,24 @@ export async function POST(req: Request) {
 
         if (uploadError) {
             console.error("Upload error:", uploadError);
-            return new Response(JSON.stringify({ error: "Failed to upload icon" }), { status: 500 });
+            return new NextResponse(JSON.stringify({ error: "Failed to upload icon" }), { status: 500 });
         }
 
         const headerUrlWithDate = `/api/image/?url=headers/${id}.jpeg&t=${Date.now()}`;
-        const { error } = await supabaseWithAuth
+        const { error } = await supabase
             .from("profiles")
             .update({ "header": headerUrlWithDate })
             .eq("uid", id)
         if (error) {
             console.error("Profile update error:", error);
             await supabase.auth.signOut();
-            return new Response(JSON.stringify({ error: "Failed to update profile" }), { status: 500 });
+            return new NextResponse(JSON.stringify({ error: "Failed to update profile" }), { status: 500 });
         }
 
-        return new Response(JSON.stringify({ success: true }), { status: 200 });
+        return new NextResponse(JSON.stringify({ success: true }), { status: 200 });
 
     } catch (error) {
         console.error("Upload processing error:", error);
-        return new Response(JSON.stringify({ error: "Failed to process image" }), { status: 500 });
+        return new NextResponse(JSON.stringify({ error: "Failed to process image" }), { status: 500 });
     }
 }

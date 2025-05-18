@@ -1,8 +1,11 @@
-import { supabase } from "@/libs/SupabaseClient";
+import { NextResponse, NextRequest } from "next/server";
+import { createClient } from "@/libs/SupabaseServer";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+    const supabase = await createClient();
+
     if (req.method !== 'POST') {
-        return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+        return new NextResponse(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
     }
 
     try {
@@ -10,7 +13,7 @@ export async function POST(req: Request) {
         const { uid } = body;
 
         if (!uid) {
-            return new Response(JSON.stringify({ error: "Missing UID" }), { status: 400 })
+            return new NextResponse(JSON.stringify({ error: "Missing UID" }), { status: 400 })
         }
 
         const { data: blockData, error: blockError } = await supabase
@@ -19,14 +22,14 @@ export async function POST(req: Request) {
             .eq("uid", uid)
             .single();
 
-        if (blockError && blockError.code !== "PGRST116") {
+        if (blockError) {
             console.error("Block fetch error:", blockError);
-            return new Response(JSON.stringify({ error: "An error occurred while fetching your block" }), { status: 500 });
+            return new NextResponse(JSON.stringify({ error: blockError.message || "An error occurred while fetching your block" }), { status: blockError.code === "PGRST116" ? 404 : 500 });
         }
 
-        return new Response(JSON.stringify({ success: true, data: blockData?.block }), { status: 200 });
+        return new NextResponse(JSON.stringify({ success: true, data: blockData?.block || [] }), { status: 200 });
     } catch (error) {
         console.error("Unexpected error:", error);
-        return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
+        return new NextResponse(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
     }
 }

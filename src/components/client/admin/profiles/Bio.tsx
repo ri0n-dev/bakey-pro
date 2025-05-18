@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/Button"
 import { Label } from "@/components/ui/Label"
 import { Input } from "@/components/ui/Input"
 import { Textarea } from "@/components/ui/Textarea"
-import { supabase } from "@/libs/SupabaseClient";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/Dialog"
 import { MapPin, BriefcaseBusiness, Calendar, Mail, FlaskConical } from "lucide-react";
 
@@ -96,19 +95,10 @@ export default function IconEdit() {
         }
 
         try {
-            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-            if (sessionError || !sessionData.session) {
-                toast.error("An error has occurred. Please try again later.");
-                console.error("Unexpected error getting Session:", sessionError);
-                setIsLoading(false);
-                return;
-            }
-
             const response = await fetch('/api/settings/profile/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${sessionData.session.access_token}`,
                 },
                 body: JSON.stringify({
                     name: originalName,

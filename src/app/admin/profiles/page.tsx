@@ -1,11 +1,10 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import Breadcrumb from "@/components/layout/admin/Breadcrumb";
-import Header from "@/components/clinet/admin/profiles/Header"
-import Icon from "@/components/clinet/admin/profiles/Icon"
-import Bio from "@/components/clinet/admin/profiles/Bio"
-import Block from "@/components/clinet/admin/profiles/Block"
-import { SiGoogle } from "@icons-pack/react-simple-icons";
+import Header from "@/components/client/admin/profiles/Header"
+import Icon from "@/components/client/admin/profiles/Icon"
+import Bio from "@/components/client/admin/profiles/Bio"
+import Block from "@/components/client/admin/profiles/Block"
 import { WandSparkles, Eye } from "lucide-react";
 
 export const metadata = {

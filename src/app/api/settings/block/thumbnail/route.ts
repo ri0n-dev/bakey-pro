@@ -1,33 +1,27 @@
-import { supabase, createSupabaseWithToken } from "@/libs/SupabaseClient";
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/libs/SupabaseServer";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+    const supabase = await createClient();
     if (req.method !== 'POST') {
-        return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
+        return new NextResponse(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
     }
 
     try {
         const body = await req.json();
 
-        const authorizationHeader = req.headers.get("authorization");
-        const accessToken = authorizationHeader?.replace("Bearer ", "");
-        if (!accessToken) {
-            return new Response(JSON.stringify({ error: "Unauthorized: Missing access token" }), { status: 401 });
-        }
-
-        const supabaseWithAuth = createSupabaseWithToken(accessToken);
-
-        const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
-        if (userError || !user) {
-            console.error("Error fetching user:", userError);
+        const { data: { user }, error: sessionError } = await supabase.auth.getUser();
+        if (sessionError || !user) {
+            console.error("Error fetching user:", sessionError);
             await supabase.auth.signOut();
-            return new Response(JSON.stringify({ error: "Invalid session or token" }), { status: 401 });
+            return new NextResponse(JSON.stringify({ error: "Invalid session or token" }), { status: 401 });
         }
 
         const { id } = user;
         const { file, blockId } = body;
 
         if (!file || !blockId) {
-            return new Response(JSON.stringify({ error: "Missing File or blockId" }), { status: 400 });
+            return new NextResponse(JSON.stringify({ error: "Missing File or blockId" }), { status: 400 });
         }
 
         const sharp = require("sharp");
@@ -40,14 +34,14 @@ export async function POST(req: Request) {
         const folderPath = `${id}`;
         const filePrefix = `${blockId}-`;
 
-        const { data: existingFiles, error: listError } = await supabaseWithAuth
+        const { data: existingFiles, error: listError } = await supabase
             .storage
             .from("blocks")
             .list(folderPath);
 
         if (listError) {
             console.error("List error:", listError);
-            return new Response(JSON.stringify({ error: "Failed to list files" }), { status: 500 });
+            return new NextResponse(JSON.stringify({ error: "Failed to list files" }), { status: 500 });
         }
 
         const matchingFiles = existingFiles
@@ -55,14 +49,14 @@ export async function POST(req: Request) {
             .map(file => `${folderPath}/${file.name}`) || [];
 
         if (matchingFiles.length > 0) {
-            const { error: deleteError } = await supabaseWithAuth
+            const { error: deleteError } = await supabase
                 .storage
                 .from("blocks")
                 .remove(matchingFiles);
 
             if (deleteError) {
                 console.error("Delete error:", deleteError);
-                return new Response(JSON.stringify({ error: "Failed to delete existing files" }), { status: 500 });
+                return new NextResponse(JSON.stringify({ error: "Failed to delete existing files" }), { status: 500 });
             }
         }
 
@@ -74,7 +68,7 @@ export async function POST(req: Request) {
             finalFilename = `${filePrefix}${index}.jpeg`;
         }
 
-        const { error: uploadError } = await supabaseWithAuth.storage
+        const { error: uploadError } = await supabase.storage
             .from("blocks")
             .upload(`${folderPath}/${finalFilename}`, resizedBuffer, {
                 contentType: "image/jpeg",
@@ -83,14 +77,14 @@ export async function POST(req: Request) {
 
         if (uploadError) {
             console.error("Upload error:", uploadError);
-            return new Response(JSON.stringify({ error: "Failed to upload image" }), { status: 500 });
+            return new NextResponse(JSON.stringify({ error: "Failed to upload image" }), { status: 500 });
         }
 
         const imageUrl = `/api/image/?url=blocks/${folderPath}/${finalFilename}&t=${Date.now()}`;
-        return new Response(JSON.stringify({ success: true, url: imageUrl }), { status: 200 });
+        return new NextResponse(JSON.stringify({ success: true, url: imageUrl }), { status: 200 });
 
     } catch (error) {
         console.error("Upload processing error:", error);
-        return new Response(JSON.stringify({ error: "Failed to process image" }), { status: 500 });
+        return new NextResponse(JSON.stringify({ error: "Failed to process image" }), { status: 500 });
     }
 }

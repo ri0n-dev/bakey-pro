@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import Cropper from "cropperjs";
 import { Icon } from "@iconify/react";
-import { supabase } from "@/libs/SupabaseClient";
 import simpleIcons from "@/libs/Simple-icons.json";
 import { Button } from "@/components/ui/Button"
 import { toast } from "sonner"
@@ -170,18 +169,10 @@ export default function IconPickerDialog({ open, onOpenChange, onSelect, id }: {
                 reader.readAsDataURL(blob);
             })
 
-            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-            if (sessionError || !sessionData.session) {
-                toast.error("An error has occurred. Please try again later.");
-                console.error("Unexpected error getting Session:", sessionError);
-                setIsSaving(false);
-                return;
-            }
-
             const response = await fetch("/api/settings/block/thumbnail/", {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${sessionData.session.access_token}`,
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     file: base64,

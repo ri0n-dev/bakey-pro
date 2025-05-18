@@ -1,54 +1,52 @@
 "use client";
 
+import { useUser } from "./useUser";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/libs/SupabaseClient";
 
 export function useBlock() {
   const router = useRouter();
+  const { user } = useUser();
   const [block, setBlock] = useState<any[]>([])
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    const getBlock = async () => {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !sessionData?.session?.user) {
-        await supabase.auth.signOut();
-        router.push("/login/");
-        return;
-      }
-
-      const { data: authUser, error } = await supabase.auth.getUser();
-      if (error || !authUser.user?.id) {
-        console.error("Error fetching user:", error?.message);
-        await supabase.auth.signOut();
-        router.push("/login/");
-        return;
-      }
-
-      const currentUid = authUser.user.id;
-      const response = await fetch("/api/block/", {
+  const getBlock = async () => {
+    try {
+      const response = await fetch("/api/block", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          uid: currentUid
+          uid: user.uid
         }),
       });
 
+      const data = await response.json();
+      
       if (!response.ok) {
-        console.error("An Unexpected Error has occurred:", await response.text());
-        return;
+        throw new Error(data.error || "Failed to fetch block data");
       }
 
-      const blockData = await response.json();
-      setBlock(blockData.data);
+      setBlock(data.data || []);
       setLoading(false);
-    };
+    } catch (error) {
+      console.error("Error fetching block data:", error);
+      await fetch('/api/logout', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      router.push("/login/");
+    }
+  };
 
-    getBlock();
-  }, [router]);
+  useEffect(() => {
+    if (user?.uid) {
+      getBlock();
+    }
+  }, [user, router]);
 
   return { block, loading };
 };

@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useUser } from "@/hooks/useUser";
 import { useState, useEffect, useRef } from "react";
-import { supabase } from "@/libs/SupabaseClient";
 import Cropper from "cropperjs";
 import { Camera } from "lucide-react";
 import { toast } from "sonner"
@@ -12,33 +11,30 @@ import { Button } from "@/components/ui/Button"
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/Dialog"
 import "cropperjs/dist/cropper.css";
 
-export default function HeaderEdit() {
+export default function IconEdit() {
     const { user } = useUser();
     const imageRef = useRef<HTMLImageElement | null>(null);
     const cropperRef = useRef<Cropper | null>(null);
-    const [isHeaderEditOpen, setIsHeaderEditOpen] = useState(false);
-    const [currentHeaderUrl, setCurrentHeaderUrl] = useState(user?.header || "/default/header.png");
-    const [isDefaultHeader, setIsDefaultHeader] = useState(!user?.header);
+    const [isIconEditOpen, setIsIconEditOpen] = useState(false);
     const [previewUrl, setPreviewUrl] = useState<string>("");
+    const [currentIconUrl, setCurrentIconUrl] = useState(user?.icon || "/default/icon.png");
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (user?.header) {
-            setCurrentHeaderUrl(user.header);
-            setIsDefaultHeader(false);
+        if (user?.icon) {
+            setCurrentIconUrl(user.icon);
             setIsLoading(false);
         } else {
             const timer = setTimeout(() => {
-                setCurrentHeaderUrl("/default/header.png");
-                setIsDefaultHeader(true);
+                setCurrentIconUrl("/default/icon.png");
                 setIsLoading(false);
             }, 10000);
 
             return () => clearTimeout(timer);
         }
         setIsLoading(false);
-    }, [user?.header]);
+    }, [user?.icon]);
 
     useEffect(() => {
         if (previewUrl && imageRef.current) {
@@ -48,7 +44,7 @@ export default function HeaderEdit() {
 
             try {
                 cropperRef.current = new Cropper(imageRef.current, {
-                    aspectRatio: 1200 / 600,
+                    aspectRatio: 1,
                     viewMode: 1,
                     autoCropArea: 1,
                     responsive: true,
@@ -63,10 +59,10 @@ export default function HeaderEdit() {
     }, [previewUrl]);
 
     useEffect(() => {
-        if (!isHeaderEditOpen) {
+        if (!isIconEditOpen) {
             setPreviewUrl("");
         }
-    }, [isHeaderEditOpen]);
+    }, [isIconEditOpen]);
 
     const onDrop = async (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -111,7 +107,7 @@ export default function HeaderEdit() {
         toast("Uploading...");
 
         try {
-            const canvas = cropperRef.current.getCroppedCanvas({ width: 1200, height: 600 });
+            const canvas = cropperRef.current.getCroppedCanvas({ width: 500, height: 500 });
             if (!canvas) {
                 toast.error("Failed to crop the image. Please try again.");
                 return;
@@ -137,18 +133,10 @@ export default function HeaderEdit() {
                 reader.readAsDataURL(blob);
             })
 
-            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-            if (sessionError || !sessionData.session) {
-                toast.error("An error has occurred. Please try again later.");
-                console.error("Unexpected error getting Session:", sessionError);
-                setIsLoading(false);
-                return;
-            }
-
-            const response = await fetch("/api/settings/header/", {
+            const response = await fetch("/api/settings/icon/", {
                 method: "POST",
                 headers: {
-                    Authorization: `Bearer ${sessionData.session.access_token}`,
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     file: base64
@@ -157,8 +145,8 @@ export default function HeaderEdit() {
 
             if (response.ok) {
                 const timestamp = new Date().getTime();
-                setCurrentHeaderUrl(`${user?.header}?t=${timestamp}`)
-                setIsHeaderEditOpen(false);
+                setCurrentIconUrl(`${user?.icon}?t=${timestamp}`)
+                setIsIconEditOpen(false);
                 toast.success("Upload Successful");
             } else {
                 toast.error("An unexpected error occurred. Please try again.");
@@ -205,28 +193,17 @@ export default function HeaderEdit() {
         }
     };
 
-    const handleImageError = () => {
-        if (!isDefaultHeader) {
-            setCurrentHeaderUrl("/default/header.png");
-            setIsDefaultHeader(true);
-            setIsLoading(false);
-        } else {
-            setIsLoading(false);
-        }
-    };
-
     return (
         <>
-            <div className="relative w-full h-auto overflow-hidden / border-t border-b border-neutral-200 dark:border-neutral-900">
+            <div className='absolute left-[20px] bottom-[-50px] w-[110px] h-[110px] border-[5px] border-transparent'>
                 {isLoading ? (
-                    <Skeleton className="w-[100%] h-[300px] rounded-none object-cover" />
+                    <Skeleton className="w-full h-full rounded-full object-cover" />
                 ) : (
                     <>
-                        <Image src={currentHeaderUrl} className="w-full h-70 object-cover opacity-50" width={600} height={300} alt="User Header" onLoad={() => setIsLoading(false)} onError={handleImageError} priority unoptimized />
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-neutral-950 opacity-60"></div>
+                        <Image src={currentIconUrl} className='w-full h-full object-cover rounded-full opacity-50' width={500} height={500} alt='User Icon' />
 
                         <div className="absolute inset-0 flex items-center justify-center text-white">
-                            <Dialog open={isHeaderEditOpen} onOpenChange={setIsHeaderEditOpen}>
+                            <Dialog open={isIconEditOpen} onOpenChange={setIsIconEditOpen}>
                                 <DialogTrigger asChild>
                                     <Button variant="outline" size="icon" className="bg-neutral-300/80 cursor-pointer w-12 h-12 rounded-full">
                                         <Camera className="text-neutral-950 dark:text-neutral-50" size={25} />
@@ -234,9 +211,9 @@ export default function HeaderEdit() {
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[500px]">
                                     <DialogHeader>
-                                        <DialogTitle>Edit Header</DialogTitle>
+                                        <DialogTitle>Edit Icon</DialogTitle>
                                         <DialogDescription>
-                                            Upload and update your headers
+                                            Upload and update your icons
                                         </DialogDescription>
                                     </DialogHeader>
 

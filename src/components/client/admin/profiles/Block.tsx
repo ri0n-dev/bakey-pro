@@ -2,7 +2,6 @@
 
 import { useUser } from "@/hooks/useUser";
 import { useBlock } from "@/hooks/useBlock";
-import { supabase } from "@/libs/SupabaseClient";
 import { useState, useEffect } from "react";
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -11,7 +10,8 @@ import { GripHorizontal } from "lucide-react";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import BlockStore from "@/components/clinet/admin/profiles/BlockStore";
+import { useBlockStore } from "@/stores/useBlock";
+import BlockStore from "@/components/client/admin/profiles/BlockStore";
 import { componentMap, propsMap } from "@/components/blocks/Registry";
 
 type Block = {
@@ -39,7 +39,7 @@ function SortableItem({ id, children }: { id: string; children: React.ReactNode 
 export default function Block() {
     const { loading } = useUser();
     const { block } = useBlock();
-    const [blocks, setBlocks] = useState<Block[]>([]);
+    const { blocks, setBlocks } = useBlockStore();
     const [fadeOut, setFadeOut] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -75,18 +75,10 @@ export default function Block() {
             setBlocks(newBlocks);
 
             try {
-
-                const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-                if (sessionError || !sessionData.session) {
-                    toast.error('Authentication failed. Please try again later.');
-                    return;
-                }
-
                 const response = await fetch('/api/settings/block/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Bearer ${sessionData.session.access_token}`,
                     },
                     body: JSON.stringify({ blocks: newBlocks }),
                 });
@@ -109,19 +101,10 @@ export default function Block() {
         const updatedBlocks = blocks.map(b => b.id === id ? { ...b, ...changes } : b);
 
         try {
-            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-            if (sessionError || !sessionData.session) {
-                toast.error("An error has occurred. Please try again later.");
-                console.error("Unexpected error getting Session:", sessionError);
-                setIsLoading(false);
-                return;
-            }
-
             const response = await fetch('/api/settings/block/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${sessionData.session.access_token}`,
                 },
                 body: JSON.stringify({ blocks: updatedBlocks }),
             });
@@ -143,19 +126,10 @@ export default function Block() {
         const updatedBlocks = blocks.filter(b => b.id !== id);
     
         try {
-            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-            if (sessionError || !sessionData.session) {
-                toast.error("An error has occurred. Please try again later.");
-                console.error("Unexpected error getting Session:", sessionError);
-                setIsLoading(false);
-                return;
-            }
-    
             const response = await fetch('/api/settings/block/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${sessionData.session.access_token}`,
                 },
                 body: JSON.stringify({ blocks: updatedBlocks }),
             });
@@ -180,10 +154,6 @@ export default function Block() {
                 <Skeleton className="h-25 w-full mb-2 rounded-none" />
             </>
         );
-    }
-
-    if (!blocks || blocks.length === 0) {
-        return <div className="text-center text-neutral-400 py-12">No blocks found</div>;
     }
 
     return (

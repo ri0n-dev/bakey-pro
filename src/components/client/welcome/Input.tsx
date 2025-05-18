@@ -4,15 +4,13 @@ import { useTheme } from "next-themes"
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
-import { supabase } from "@/libs/SupabaseClient";
+import { createClient } from "@/libs/SupabaseClient";
 import { Toaster, ToasterProps, toast } from "sonner"
-import { useUser } from "@/hooks/useUser";
 
 export default function Input() {
     const { theme = "system" } = useTheme()
     const [valume, setValume] = useState<string>("")
     const [isLoading, setIsLoading] = useState(false)
-    const { uid } = useUser()
     const router = useRouter()
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,6 +41,7 @@ export default function Input() {
         }
 
         try {
+            const supabase = await createClient()
             const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
             if (sessionError || !sessionData.session) {
                 toast.error("An error has occurred. Please try again late")

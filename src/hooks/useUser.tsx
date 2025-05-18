@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/libs/SupabaseClient";
 
 export function useUser() {
   const router = useRouter();
@@ -12,38 +11,23 @@ export function useUser() {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !sessionData?.session?.user) {
-        await supabase.auth.signOut();
-        router.push("/login/");
-        return;
-      }
-
-      const { data: authUser, error } = await supabase.auth.getUser();
-      if (error || !authUser.user?.id) {
-        console.error("Error fetching user:", error?.message);
-        await supabase.auth.signOut();
-        router.push("/login/");
-        return;
-      }
-
-      const currentUid = authUser.user.id;
-      setUid(currentUid);
-
-      const response = await fetch("/api/user/", {
+      const response = await fetch("/api/user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${sessionData.session.access_token}`,
         },
-        body: JSON.stringify({
-          uid: currentUid,
-        }),
       });
 
       if (!response.ok) {
         console.error("An Unexpected Error has occurred:", await response.text());
-        await supabase.auth.signOut();
+
+        await fetch('/api/logout', {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
         router.push("/login/");
         return;
       }

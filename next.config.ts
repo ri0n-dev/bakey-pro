@@ -10,12 +10,8 @@ const nextConfig: NextConfig = {
     return config;
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "**",
-      },
-    ],
+    domains: ['localhost', 'bakey.pro', 'nbyvfubvidiudjzyrrqd.supabase.co'],
+    unoptimized: true,
   },
   i18n: {
     locales: ['en', 'ja'],
@@ -33,13 +29,9 @@ const nextConfig: NextConfig = {
         destination: 'https://discord.gg/6BPfVm6cST',
         permanent: true
       },
-      {
-        source: '/discord/reports',
-        destination: 'https://discord.gg/Zzb4Beh9WA',
-        permanent: true
-      },
     ];
   },
+  swcMinify: true,
 };
 
 const withNextIntl = createNextIntlPlugin();

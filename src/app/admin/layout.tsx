@@ -1,12 +1,20 @@
 import { ReactNode } from "react";
-import { CheckSession } from "@/components/clinet/auth/Session";
+import { createClient } from "@/libs/SupabaseServer"
+import { redirect } from "next/navigation"
 import Sidebar from "@/components/layout/admin/Sidebar"
+import { Session } from "@/components/Session"
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+    await Session();
+    const supabase = await createClient()
+    const { data } = await supabase.auth.getSession()
+
+    if (!data.session) {
+        redirect("/login")
+    }
+
     return (
         <>
-            <CheckSession />
-
             <div className="flex h-screen">
                 <Sidebar />
                 {children}

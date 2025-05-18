@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/libs/SupabaseClient";
+import { createClient } from "@/libs/SupabaseClient";
 
 const AuthCallbackHandler = () => {
   const router = useRouter();
@@ -10,24 +10,24 @@ const AuthCallbackHandler = () => {
   useEffect(() => {
     const handle = async () => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
-  
+
+        const supabase = await createClient()
+
         const { data, error } = await supabase.auth.getSession();
         if (error || !data.session) {
           router.push("/login");
           return;
         }
-  
-        const accessToken = data.session.access_token;
-  
-        const res = await fetch("/api/auth/initialize", {
+
+        const res = await fetch("/api/init", {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
           },
         });
   
         if (!res.ok) {
-          router.push("/login");
+          router.push("/auth/error/");
           return;
         }
   

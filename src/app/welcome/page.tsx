@@ -1,8 +1,8 @@
-import {getTranslations} from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import { Header } from "@/components/layout/login/Header";
-import { CheckSession } from "@/components/clinet/auth/Session";
-import CheckUsername from "@/components/clinet/welcome/CheckUsername";
-import Input from "@/components/clinet/welcome/Input";
+import CheckUsername from "@/components/client/welcome/CheckUsername";
+import { Session } from "@/components/Session";
+import Input from "@/components/client/welcome/Input";
 
 export const metadata = {
     title: 'Welcome',
@@ -10,13 +10,12 @@ export const metadata = {
 }
 
 export default async function welcomePage() {
+    await Session();
+    await CheckUsername();
     const t = await getTranslations('welcome');
 
     return (
         <>
-            <CheckSession />
-            <CheckUsername />
-
             <Header />
 
             <div className="flex flex-col justify-center items-center text-center gap-3 w-full max-w-sm mx-auto h-[85vh]">
@@ -27,7 +26,7 @@ export default async function welcomePage() {
 
                 <p className="text-neutral-500 text-sm  mt-6">{t('note')}</p>
             </div>
-        
+
         </>
-    )
+    );
 }
