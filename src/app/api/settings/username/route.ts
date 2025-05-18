@@ -24,15 +24,37 @@ export async function POST(req: NextRequest) {
             return new NextResponse(JSON.stringify({ error: "Missing Username" }), { status: 400 })
         }
 
-        const { error: updateError } = await supabase
+        const { error: updateProfileError } = await supabase
             .from("profiles")
             .update({ username })
             .eq("uid", id)
 
-        if (updateError) {
-            console.error("Profile update error:", updateError);
+        if (updateProfileError) {
+            console.error("Profile update error:", updateProfileError);
             await supabase.auth.signOut();
             return new NextResponse(JSON.stringify({ error: "An error occurred while updating your profile" }), { status: 500 });
+        }
+
+        const { error: updateThemeError } = await supabase
+            .from("themes")
+            .update({ username })
+            .eq("uid", id)
+
+        if (updateThemeError) {
+            console.error("Theme update error:", updateThemeError);
+            await supabase.auth.signOut();
+            return new NextResponse(JSON.stringify({ error: "An error occurred while updating your theme" }), { status: 500 });
+        }
+
+        const { error: updateBlockError } = await supabase
+            .from("blocks")
+            .update({ username })
+            .eq("uid", id)
+
+        if (updateBlockError) {
+            console.error("Block update error:", updateBlockError);
+            await supabase.auth.signOut();
+            return new NextResponse(JSON.stringify({ error: "An error occurred while updating your blocks" }), { status: 500 });
         }
 
         return new NextResponse(JSON.stringify({ success: true }), { status: 200 });

@@ -9,14 +9,15 @@ const AuthCallbackHandler = () => {
 
   useEffect(() => {
     const handle = async () => {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        const supabase = await createClient()
-
-        const { data, error } = await supabase.auth.getSession();
-        if (error || !data.session) {
-          router.push("/login");
-          return;
+        const supabase = await createClient();
+        const { data: { user }, error: sessionError } = await supabase.auth.getUser();
+        if (sessionError || !user) {
+            await supabase.auth.signOut();
+            router.push("/login/");
+            return;
         }
 
         const res = await fetch("/api/init", {
@@ -27,14 +28,19 @@ const AuthCallbackHandler = () => {
         });
   
         if (!res.ok) {
+          console.error('Init API error:', await res.json());
           router.push("/auth/error/");
           return;
         }
   
         router.push("/welcome");
-      };
+      } catch (error) {
+        console.error('Auth callback error:', error);
+        router.push("/auth/error/");
+      }
+    };
   
-      handle();
+    handle();
   }, [router]);
 
   return null;

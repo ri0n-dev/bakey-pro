@@ -1,25 +1,22 @@
 "use client";
 
-import { useUser } from "./useUser";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useBlockStore } from "@/stores/useBlock";
 
 export function useBlock() {
-  const router = useRouter();
-  const { user } = useUser();
-  const [block, setBlock] = useState<any[]>([])
-  const [loading, setLoading] = useState<boolean>(true);
+  const { blocks, setBlocks } = useBlockStore();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const getBlock = async () => {
+    if (loading) return;
+    setLoading(true);
+
     try {
       const response = await fetch("/api/block", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          uid: user.uid
-        }),
+        }
       });
 
       const data = await response.json();
@@ -28,25 +25,17 @@ export function useBlock() {
         throw new Error(data.error || "Failed to fetch block data");
       }
 
-      setBlock(data.data || []);
-      setLoading(false);
+      setBlocks(data.data || []);
     } catch (error) {
       console.error("Error fetching block data:", error);
-      await fetch('/api/logout', {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      router.push("/login/");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (user?.uid) {
-      getBlock();
-    }
-  }, [user, router]);
+    getBlock();
+  }, []);
 
-  return { block, loading };
-};
+  return { blocks, loading };
+}

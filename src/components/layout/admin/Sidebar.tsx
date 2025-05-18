@@ -3,14 +3,14 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { redirect } from "next/navigation";
-import { useUser } from "@/hooks/useUser"
+import { useUserStore } from "@/stores/useUser";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/DropdownMenu"
 import { UserPen, UserSearch, TrendingUp, SlidersHorizontal, MessagesSquare, EllipsisVertical, LogOut, User, Plus, BadgeCheck } from 'lucide-react';
 import Bakey from "@/assets/bakey.svg";
 
 export default function Sidebar() {
-    const { user, loading } = useUser();
+    const { user, loading } = useUserStore();
     const [isRedirecting, setIsRedirecting] = useState(false);
 
     useEffect(() => {
@@ -76,13 +76,13 @@ export default function Sidebar() {
                         <div className="flex justify-center items-center">
                             <div className="flex items-center justify-center mr-2 w-10 h-10 rounded-full">
                                 <Avatar>
-                                    <AvatarImage src={user.icon} />
+                                    <AvatarImage src={user?.avatar} />
                                     <AvatarFallback>WA</AvatarFallback>
                                 </Avatar>
                             </div>
                             <div className="flex flex-col">
-                                <div className="text-sm relative overflow-hidden whitespace-nowrap overflow-ellipsis">{user.name}</div>
-                                <div className="text-xs relative overflow-hidden whitespace-nowrap overflow-ellipsis">@{user.username}</div>
+                                <div className="text-sm relative overflow-hidden whitespace-nowrap overflow-ellipsis">{user?.name}</div>
+                                <div className="text-xs relative overflow-hidden whitespace-nowrap overflow-ellipsis">@{user?.username}</div>
                             </div>
                         </div>
                         <div className="flex mr-1 fw-5 h-5 cursor-pointer">
@@ -94,12 +94,12 @@ export default function Sidebar() {
                     <DropdownMenuLabel className="p-0 font-normal">
                         <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                             <Avatar>
-                                <AvatarImage src={user.icon} />
-                                <AvatarFallback>{user.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+                                <AvatarImage src={user?.avatar} />
+                                <AvatarFallback>{user?.name.slice(0, 2).toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
-                                <span className="truncate font-semibold">{user.name}</span>
-                                <span className="truncate text-xs">@{user.username}</span>
+                                <span className="truncate font-semibold">{user?.name}</span>
+                                <span className="truncate text-xs">@{user?.username}</span>
                             </div>
                         </div>
                     </DropdownMenuLabel>

@@ -19,7 +19,7 @@ export default function DemoProfilePage() {
                                 className="w-full h-70 object-cover"
                                 width={600}
                                 height={300}
-                                alt="User Header"
+                                alt="User cover"
                             />
                             {/*
                                                         <video className='w-full h-60 object-cover' autoPlay muted loop>

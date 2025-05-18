@@ -9,11 +9,16 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const { data: { user }, error: sessionError } = await supabase.auth.getUser();
-        if (sessionError || !user) {
-            console.error("Error fetching user:", sessionError);
-            await supabase.auth.signOut();
-            return new NextResponse(JSON.stringify({ error: "Invalid session or token" }), { status: 401 });
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+            console.error("Error fetching session:", sessionError);
+            return new NextResponse(JSON.stringify({ error: "Invalid session" }), { status: 401 });
+        }
+
+        const { user } = session || {};
+        if (!user) {
+            console.error("No user found in session");
+            return new NextResponse(JSON.stringify({ error: "No user found" }), { status: 401 });
         }
 
         const { id, user_metadata } = user;
@@ -43,7 +48,7 @@ export async function POST(req: NextRequest) {
 
             const { error: storageError } = await supabase
                 .storage
-                .from("icons")
+                .from("avatars")
                 .upload(file, buffer, { contentType: "image/jpeg", upsert: true });
 
             if (storageError) {
@@ -53,7 +58,7 @@ export async function POST(req: NextRequest) {
             } else {
                 const { data: publicUrl } = supabase
                     .storage
-                    .from("icons")
+                    .from("avatars")
                     .getPublicUrl(file);
                 uploadedAvatarUrl = publicUrl.publicUrl;
             }
@@ -63,8 +68,8 @@ export async function POST(req: NextRequest) {
             uid: id,
             name: user_metadata.name || "name",
             username: "",
-            icon: uploadedAvatarUrl || user_metadata.avatar_url || "",
-            header: "",
+            avatar: uploadedAvatarUrl || user_metadata.avatar_url || "",
+            cover: "",
             bio: {
                 introduction: "",
                 location: "",

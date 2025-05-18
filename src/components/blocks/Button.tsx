@@ -11,7 +11,16 @@ import { Input } from "@/components/ui/Input"
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/AlertDialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/Dialog"
 import { EllipsisVertical, Ellipsis, Pen, Sparkles, Trash, Lock } from "lucide-react"
-import { Block } from "@/interfaces/block"
+
+type Block = {
+    id: string
+    content: any[]
+    component?: string
+    lock: string
+    redirect?: string
+    title?: string
+    icon?: string
+}
 
 export const Button: React.FC<{ title: string; redirect: string; icon: React.ReactNode; }> = ({ title, redirect, icon }) => {
     return (

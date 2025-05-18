@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import Breadcrumb from "@/components/layout/admin/Breadcrumb";
-import Header from "@/components/client/admin/profiles/Header"
-import Icon from "@/components/client/admin/profiles/Icon"
+import Cover from "@/components/client/admin/profiles/Cover"
+import Avatar from "@/components/client/admin/profiles/Avatar"
 import Bio from "@/components/client/admin/profiles/Bio"
 import Block from "@/components/client/admin/profiles/Block"
 import { WandSparkles, Eye } from "lucide-react";
@@ -27,8 +27,8 @@ export default function adminProfiles() {
             <div className="flex flex-grow justify-center items-start">
                 <div className="text-center max-w-[600px] w-[100%] mx-auto pt-[60px] / min-h-full border-l border-r border-neutral-200 dark:border-neutral-900 pb-30">
                     <div className="relative w-full h-auto / pt-3">
-                        <Header />
-                        <Icon />
+                        <Cover />
+                        <Avatar />
                     </div>
 
                     <div className="text-neutral-950 dark:text-neutral-50 text-left pb-5 pl-5 pr-5 / mt-[60px]">

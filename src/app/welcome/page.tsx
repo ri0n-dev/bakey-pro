@@ -11,12 +11,12 @@ export const metadata = {
 
 export default async function welcomePage() {
     await Session();
-    await CheckUsername();
     const t = await getTranslations('welcome');
 
     return (
         <>
             <Header />
+            <CheckUsername />
 
             <div className="flex flex-col justify-center items-center text-center gap-3 w-full max-w-sm mx-auto h-[85vh]">
                 <h1 className="text-neutral-950 dark:text-neutral-50 bg-clip-text text-5xl">{t('title')}</h1>

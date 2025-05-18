@@ -9,17 +9,48 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const body = await req.json();
-        const { uid } = body;
-
-        if (!uid) {
-            return new NextResponse(JSON.stringify({ error: "Missing UID" }), { status: 400 })
+        let body: { username?: string } = {};
+        try {
+            body = await req.json();
+        } catch (_) {
+            body = {};
         }
+        const username = body?.username;
+
+        if (username) {
+            const { data: blockData, error: blockError } = await supabase
+                .from("blocks")
+                .select("block")
+                .eq("username", username)
+                .single();
+
+            if (blockError) {
+                console.error("Username block fetch error:", blockError);
+                return new NextResponse(JSON.stringify({ error: "User not found" }), { status: 404 });
+            }
+
+            if (blockData) {
+                const block = blockData.block;
+                if (block && typeof block === 'object') {
+                    delete block.uid;
+                }
+            }
+            return new NextResponse(JSON.stringify({ success: true, data: blockData?.block || [] }), { status: 200 });
+        }
+
+        const { data: { user }, error: sessionError } = await supabase.auth.getUser();
+        if (sessionError || !user) {
+            console.error("Error fetching user:", sessionError);
+            await supabase.auth.signOut();
+            return new NextResponse(JSON.stringify({ error: "Invalid session or token" }), { status: 401 });
+        }
+
+        const { id } = user;
 
         const { data: blockData, error: blockError } = await supabase
             .from("blocks")
             .select("block")
-            .eq("uid", uid)
+            .eq("uid", id)
             .single();
 
         if (blockError) {
@@ -27,6 +58,12 @@ export async function POST(req: NextRequest) {
             return new NextResponse(JSON.stringify({ error: blockError.message || "An error occurred while fetching your block" }), { status: blockError.code === "PGRST116" ? 404 : 500 });
         }
 
+        if (blockData) {
+            const block = blockData.block;
+            if (block && typeof block === 'object') {
+                delete block.uid;
+            }
+        }
         return new NextResponse(JSON.stringify({ success: true, data: blockData?.block || [] }), { status: 200 });
     } catch (error) {
         console.error("Unexpected error:", error);

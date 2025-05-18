@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Init from "@/components/client/auth/Init";
+import { Session } from "@/components/Session";
 import Bakey from "@/assets/bakey.svg"
 
 export const metadata = {
@@ -8,10 +9,12 @@ export const metadata = {
 }
 
 export default function AuthCallback() {
-  Init();
+  Session();
 
   return (
     <>
+      <Init />
+
       <div className="flex flex-col min-h-screen justify-center items-center">
         <div className="text-center max-w-150 w-full">
           <Image src={Bakey} className="object-contain mx-auto pb-5" width={80} height={80} alt="Bakey" />
@@ -20,5 +23,5 @@ export default function AuthCallback() {
         </div>
       </div>
     </>
-  );
+  )
 }

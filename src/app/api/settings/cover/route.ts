@@ -24,29 +24,24 @@ export async function POST(req: NextRequest) {
             return new NextResponse(JSON.stringify({ error: "Missing File" }), { status: 400 })
         }
 
-        const sharp = require("sharp");
         const buffer = Buffer.from(file, "base64");
-        const resizedBuffer = await sharp(buffer)
-            .resize(1200, 600, { fit: "cover" })
-            .jpeg({ quality: 80 })
-            .toBuffer();
 
         const { error: uploadError } = await supabase.storage
-            .from("headers")
-            .upload(`${id}.jpeg`, resizedBuffer, {
+            .from("covers")
+            .upload(`${id}.jpeg`, buffer, {
                 contentType: "image/jpeg",
                 upsert: true,
             });
 
         if (uploadError) {
             console.error("Upload error:", uploadError);
-            return new NextResponse(JSON.stringify({ error: "Failed to upload icon" }), { status: 500 });
+            return new NextResponse(JSON.stringify({ error: "Failed to upload cover" }), { status: 500 });
         }
 
-        const headerUrlWithDate = `/api/image/?url=headers/${id}.jpeg&t=${Date.now()}`;
+        const coverUrlWithDate = `/api/image/?url=covers/${id}.jpeg&t=${Date.now()}`;
         const { error } = await supabase
             .from("profiles")
-            .update({ "header": headerUrlWithDate })
+            .update({ "cover": coverUrlWithDate })
             .eq("uid", id)
         if (error) {
             console.error("Profile update error:", error);

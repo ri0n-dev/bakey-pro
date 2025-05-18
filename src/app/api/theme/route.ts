@@ -10,16 +10,16 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { uid } = body;
+        const { username } = body;
 
-        if (!uid) {
-            return new NextResponse(JSON.stringify({ error: "Missing UID" }), { status: 400 })
+        if (!username) {
+            return new NextResponse(JSON.stringify({ error: "Missing Username" }), { status: 400 })
         }
 
         const { data: themeData, error: themeError } = await supabase
             .from("themes")
             .select("theme, style")
-            .eq("uid", uid)
+            .eq("username", username)
             .single();
 
         if (themeError && themeError.code !== "PGRST116") {

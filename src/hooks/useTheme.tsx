@@ -2,48 +2,46 @@
 
 import { useUser } from "./useUser";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 
-export function useBlock() {
-  const router = useRouter();
+export function useTheme(username?: string) {
   const { user } = useUser();
-  const [theme, setTheme] = useState<any[]>([])
-  const [style, setStyle] = useState<any[]>([])
+  const [theme, setTheme] = useState<string[]>([])
+  const [style, setStyle] = useState<string[]>([])
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const getBlock = async () => {
+    const getTheme = async () => {
       const response = await fetch("/api/theme/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          uid: user.uid
+          username: username ?? user?.username
         }),
       });
-
+  
       if (!response.ok) {
         console.error("An Unexpected Error has occurred:", await response.text());
-        
+  
         await fetch('/api/logout', {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
         });
-
+  
         return;
       }
-
+  
       const blockData = await response.json();
-      setTheme(blockData.theme);
-      setStyle(blockData.style);
+      setTheme(blockData.data.theme);
+      setStyle(blockData.data.style);
       setLoading(false);
     };
-
-    getBlock();
-  }, [router]);
+  
+    getTheme();
+  }, [username, user?.username]);  
 
   return { theme, style, loading };
 };

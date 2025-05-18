@@ -1,18 +1,15 @@
 "use client";
 
-import { useUser } from "@/hooks/useUser";
-import { useBlock } from "@/hooks/useBlock";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner"
-import { Skeleton } from "@/components/ui/Skeleton";
 import { Button as ButtonUI } from "@/components/ui/Button";
 import { GripHorizontal } from "lucide-react";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, useSortable, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useBlockStore } from "@/stores/useBlock";
 import BlockStore from "@/components/client/admin/profiles/BlockStore";
 import { componentMap, propsMap } from "@/components/blocks/Registry";
+import { useBlockStore } from "@/stores/useBlock";
 
 type Block = {
     id: string;
@@ -37,25 +34,8 @@ function SortableItem({ id, children }: { id: string; children: React.ReactNode 
 }
 
 export default function Block() {
-    const { loading } = useUser();
-    const { block } = useBlock();
     const { blocks, setBlocks } = useBlockStore();
     const [fadeOut, setFadeOut] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        if (block) {
-            const newBlocks: Block[] = block.map((b: any) => ({
-                id: b.id,
-                lock: b.lock || "",
-                content: b.content || [],
-                redirect: b.redirect,
-                component: b.component || "Button",
-            }));
-            setBlocks(newBlocks);
-            setIsLoading(false);
-        }
-    }, [block]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -145,16 +125,6 @@ export default function Block() {
             toast.error("An error has occurred. Please try again later.");
         }
     };
-
-    if (loading || isLoading) {
-        return (
-            <>
-                <Skeleton className="h-25 w-full mb-2 rounded-none" />
-                <Skeleton className="h-50 w-full mb-2 rounded-none" />
-                <Skeleton className="h-25 w-full mb-2 rounded-none" />
-            </>
-        );
-    }
 
     return (
         <>

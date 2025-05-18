@@ -1,6 +1,5 @@
 "use client";
 
-import { useUser } from "@/hooks/useUser";
 import { useState, useEffect } from "react";
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/Skeleton"
@@ -10,9 +9,10 @@ import { Input } from "@/components/ui/Input"
 import { Textarea } from "@/components/ui/Textarea"
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/Dialog"
 import { MapPin, BriefcaseBusiness, Calendar, Mail, FlaskConical } from "lucide-react";
+import { useUserStore } from "@/stores/useUser";
 
-export default function IconEdit() {
-    const { user } = useUser();
+export default function AvatarEdit() {
+    const { user } = useUserStore();
     const [isBioOpen, setIsBioOpen] = useState(false);
     const [isOtherOpen, setIsOtherOpen] = useState(false);
     const [currentName, setCurrentName] = useState("");

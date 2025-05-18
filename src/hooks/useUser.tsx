@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUserStore } from "@/stores/useUser";
 
 export function useUser() {
   const router = useRouter();
-  const [uid, setUid] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { user, setUser, loading, setLoading } = useUserStore();
 
   useEffect(() => {
     const checkUser = async () => {
@@ -21,7 +20,7 @@ export function useUser() {
       if (!response.ok) {
         console.error("An Unexpected Error has occurred:", await response.text());
 
-        await fetch('/api/logout', {
+        await fetch("/api/logout", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -37,8 +36,10 @@ export function useUser() {
       setLoading(false);
     };
 
-    checkUser();
-  }, [router]);
+    if (!user) {
+      checkUser();
+    }
+  }, [router, user, setUser, setLoading]);
 
-  return { uid, user, loading };
-};
+  return { user, loading };
+}

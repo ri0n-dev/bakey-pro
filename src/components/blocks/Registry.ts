@@ -1,5 +1,14 @@
 import { Button, ButtonAdmin } from "@/components/blocks/Button";
-import { Block } from "@/interfaces/block";
+
+type Block = {
+    id: string
+    content: any[]
+    component?: string
+    lock: string
+    redirect?: string
+    title?: string
+    icon?: string
+}
 
 type Handlers = {
     handleSave: (id: string, changes: Partial<Block>) => void | Promise<void>;

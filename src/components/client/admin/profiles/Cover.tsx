@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useUser } from "@/hooks/useUser";
 import { useState, useEffect, useRef } from "react";
 import Cropper from "cropperjs";
 import { Camera } from "lucide-react";
@@ -10,31 +9,35 @@ import { Skeleton } from "@/components/ui/Skeleton"
 import { Button } from "@/components/ui/Button"
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/Dialog"
 import "cropperjs/dist/cropper.css";
+import { useUserStore } from "@/stores/useUser";
 
-export default function IconEdit() {
-    const { user } = useUser();
+export default function CoverEdit() {
+    const { user } = useUserStore();
     const imageRef = useRef<HTMLImageElement | null>(null);
     const cropperRef = useRef<Cropper | null>(null);
-    const [isIconEditOpen, setIsIconEditOpen] = useState(false);
+    const [isCoverEditOpen, setIsCoverEditOpen] = useState(false);
+    const [currentCoverUrl, setCurrentCoverUrl] = useState(user?.cover || "/default/cover.png");
+    const [isDefaultCover, setIsDefaultCover] = useState(!user?.cover);
     const [previewUrl, setPreviewUrl] = useState<string>("");
-    const [currentIconUrl, setCurrentIconUrl] = useState(user?.icon || "/default/icon.png");
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (user?.icon) {
-            setCurrentIconUrl(user.icon);
+        if (user?.cover) {
+            setCurrentCoverUrl(user.cover);
+            setIsDefaultCover(false);
             setIsLoading(false);
         } else {
             const timer = setTimeout(() => {
-                setCurrentIconUrl("/default/icon.png");
+                setCurrentCoverUrl("/default/cover.png");
+                setIsDefaultCover(true);
                 setIsLoading(false);
             }, 10000);
 
             return () => clearTimeout(timer);
         }
         setIsLoading(false);
-    }, [user?.icon]);
+    }, [user?.cover]);
 
     useEffect(() => {
         if (previewUrl && imageRef.current) {
@@ -44,7 +47,7 @@ export default function IconEdit() {
 
             try {
                 cropperRef.current = new Cropper(imageRef.current, {
-                    aspectRatio: 1,
+                    aspectRatio: 1200 / 600,
                     viewMode: 1,
                     autoCropArea: 1,
                     responsive: true,
@@ -59,10 +62,10 @@ export default function IconEdit() {
     }, [previewUrl]);
 
     useEffect(() => {
-        if (!isIconEditOpen) {
+        if (!isCoverEditOpen) {
             setPreviewUrl("");
         }
-    }, [isIconEditOpen]);
+    }, [isCoverEditOpen]);
 
     const onDrop = async (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
@@ -107,7 +110,7 @@ export default function IconEdit() {
         toast("Uploading...");
 
         try {
-            const canvas = cropperRef.current.getCroppedCanvas({ width: 500, height: 500 });
+            const canvas = cropperRef.current.getCroppedCanvas({ width: 1200, height: 600 });
             if (!canvas) {
                 toast.error("Failed to crop the image. Please try again.");
                 return;
@@ -133,7 +136,7 @@ export default function IconEdit() {
                 reader.readAsDataURL(blob);
             })
 
-            const response = await fetch("/api/settings/icon/", {
+            const response = await fetch("/api/settings/cover/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -145,8 +148,8 @@ export default function IconEdit() {
 
             if (response.ok) {
                 const timestamp = new Date().getTime();
-                setCurrentIconUrl(`${user?.icon}?t=${timestamp}`)
-                setIsIconEditOpen(false);
+                setCurrentCoverUrl(`${user?.cover}?t=${timestamp}`)
+                setIsCoverEditOpen(false);
                 toast.success("Upload Successful");
             } else {
                 toast.error("An unexpected error occurred. Please try again.");
@@ -193,17 +196,28 @@ export default function IconEdit() {
         }
     };
 
+    const handleImageError = () => {
+        if (!isDefaultCover) {
+            setCurrentCoverUrl("/default/cover.png");
+            setIsDefaultCover(true);
+            setIsLoading(false);
+        } else {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <>
-            <div className='absolute left-[20px] bottom-[-50px] w-[110px] h-[110px] border-[5px] border-transparent'>
+            <div className="relative w-full h-auto overflow-hidden / border-t border-b border-neutral-200 dark:border-neutral-900">
                 {isLoading ? (
-                    <Skeleton className="w-full h-full rounded-full object-cover" />
+                    <Skeleton className="w-[100%] h-[300px] rounded-none object-cover" />
                 ) : (
                     <>
-                        <Image src={currentIconUrl} className='w-full h-full object-cover rounded-full opacity-50' width={500} height={500} alt='User Icon' />
+                        <Image src={currentCoverUrl} className="w-full h-70 object-cover opacity-50" width={600} height={300} alt="User cover" onLoad={() => setIsLoading(false)} onError={handleImageError} priority unoptimized />
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-neutral-950 opacity-60"></div>
 
                         <div className="absolute inset-0 flex items-center justify-center text-white">
-                            <Dialog open={isIconEditOpen} onOpenChange={setIsIconEditOpen}>
+                            <Dialog open={isCoverEditOpen} onOpenChange={setIsCoverEditOpen}>
                                 <DialogTrigger asChild>
                                     <Button variant="outline" size="icon" className="bg-neutral-300/80 cursor-pointer w-12 h-12 rounded-full">
                                         <Camera className="text-neutral-950 dark:text-neutral-50" size={25} />
@@ -211,9 +225,9 @@ export default function IconEdit() {
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[500px]">
                                     <DialogHeader>
-                                        <DialogTitle>Edit Icon</DialogTitle>
+                                        <DialogTitle>Edit Header</DialogTitle>
                                         <DialogDescription>
-                                            Upload and update your icons
+                                            Upload and update your headers
                                         </DialogDescription>
                                     </DialogHeader>
 
